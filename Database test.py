@@ -23,7 +23,7 @@ def create_connection(path):
 
 # Create the connection object to the database, "database filename" is the parameter
 print("Connect to SQLite database:")
-connection = create_connection("myDatabase")
+connection = create_connection("Assignment13.db")
 
 
 # Execute predefined write queries
@@ -106,11 +106,10 @@ execute_query(connection, create_book)
 # Everything above this line was to create the SQL Database
 steady = 1
 while steady == 1:
-    print("""Main Menu:
+    request = int(input("""Main Menu:
     1. Customers
     2. Books
-    3. Exit""")
-    request = input()
+    3. Exit"""))
     if request == 1:
         print("""Customer Menu:
         1. Add a new customer
@@ -118,43 +117,218 @@ while steady == 1:
         3. Print a list of all customers
         4. Delete a customer
         5. Return to Main Menu""")
+        request2 = int(input())
+        if request2 == 1:
+            first = input("What is their first name?")
+            last = input("What is their last name?")
+            street = input("What is their street address?")
+            city = input("What city do they live in?")
+            state = input("What state do the live in(initials)?")
+            zip = input("What is there zip code?")
+            add_customer = f"""
+            INSERT INTO
+              customer (first_name, last_name, street, city, state, zip)
+            VALUES
+              ({first}, {last}, {street}, {city}, {state}, {zip}
+            """
+            execute_query(connection, add_customer)
+
+        elif request2 == 2:
+            print("What would you like to modify?")
+            print("""1. First name
+            2. Last name
+            3. address""")
+            change = int(input())
+            if change == 1:
+                print("What was their name?")
+                oldname = input()
+                print("What is their new name?")
+                newname = input()
+                update_customer_name = f"""
+                UPDATE
+                  customer
+                SET
+                  first_name = {newname}
+                WHERE
+                  first_name = {oldname}
+                """
+                execute_query(connection, update_customer_name)
+            elif change == 2:
+                print("What was their name?")
+                old_name = input()
+                print("What is their new name?")
+                new_name = input()
+                update_customer_name = f"""
+                UPDATE
+                  customer
+                SET
+                  last_name = {new_name}
+                WHERE
+                  last_name = {old_name}
+                """
+                execute_query(connection, update_customer_name)
+            elif change == 3:
+                old_street = input("What was their old street address?")
+                old_city = input("What was their old city?")
+                old_state = input("What was their old state?(initials)")
+                old_zip = input("What was there old zip code?")
+                new_street = input("What is their new street address?")
+                new_city = input("What is their new city?")
+                new_state = input("What is their new state?(initials)")
+                new_zip = input("What is there new zip code?")
+                update_customer_address = f"""
+                UPDATE
+                    customer
+                SET
+                    street = {new_street}, city = {new_city}, state = {new_state}, zip = {new_zip}
+                WHERE
+                    street = {old_street}, city = {old_city}, state = {old_state}, zip = {old_zip}
+                """
+                execute_query(connection, update_customer_address)
+        elif request2 == 3:
+            select_customer = "SELECT * from customer"
+            customers = execute_read_query(connection, select_customer)
+            for customer in customers:
+                print(customer)
+        elif request2 == 4:
+            del_customer = input("What is the name of the customer you would like to delete?")
+            delete_customer = f"""
+            DELETE FROM
+                customer
+            WHERE
+                first_name = {del_customer}
+            """
+            execute_query(connection,delete_customer)
+        elif request2 == 5:
+            steady = 1
+    if request == 2:
+        print("""Book Menu:
+        1. Add a new book
+        2. Modify an existing book
+        3. Print a list of all books
+        4. Delete a book
+        5. Return to main menu""")
+        request2 = int(input())
+        if request2 == 1:
+                    print("""Customer Menu:
+        1. Add a new customer
+        2. Modify an existing customer
+        3. Print a list of all customers
+        4. Delete a customer
+        5. Return to Main Menu""")
         request2 = input
         if request2 == 1:
+            title = input("What is the Title of the book?")
+            author = input("Who is the author of the book?")
+            isbn = input("What is the ISBN of the book?")
+            edition = input("What edition is the book?")
+            price = input("What is the price of the book(no $)?")
+            publisher = input("Who is the publisher of the book?")
+            add_book = f"""
+            INSERT INTO
+              book (title, author, isbn, edition, price, publisher)
+            VALUES
+              ({title}, {author}, {isbn}, {edition}, {price}, {publisher}
+            """
+            execute_query(connection, add_book)
 
+        elif request2 == 2:
+            print("""What would you like to modify?
+            1. Title
+            2. Author
+            3. ISBN
+            4. Edition
+            5. Price
+            6. Publisher""")
+            change = input()
+            if change == 1:
+                old_title = input("What was the old Title of the book?")
+                new_title = input("What is the new Title of the book?")
+                update_book_title = f"""
+                UPDATE
+                  book
+                SET
+                  title = {new_title}
+                WHERE
+                  title = {old_title}
+                """
+                execute_query(connection, update_book_title)
+            elif change == 2:
+                old_author = input("What was the old author of the book?")
+                new_author = input("What is the new author of the book?")
+                update_book_author = f"""
+                UPDATE
+                  book
+                SET
+                  author = {new_author}
+                WHERE
+                  author = {old_author}
+                """
+                execute_query(connection,update_book_author)
+            elif change == 3:
+                old_isbn = input("What was the old ISBN of the book?")
+                new_isbn = input("What is the new ISBN of the book?")
+                update_book_ISBN = f"""
+                UPDATE
+                    book
+                SET
+                    isbn = {new_isbn}
+                WHERE
+                    isbn = {old_isbn}
+                """
+                execute_query(connection, update_book_ISBN)
+            elif change == 4:
+                old_edition = input("What was the old edition of the book?")
+                new_edition = input("What is the new edition of the book?")
+                update_book_edition = f"""
+                UPDATE
+                  book
+                SET
+                  edition = {new_edition}
+                WHERE
+                  edition = {old_edition}
+                """
+                execute_query(connection, update_book_edition)
+            elif change == 5:
+                old_price = input("What was the old price of the book?")
+                new_price = input("What is the new price of the book?")
+                update_book_price = f"""
+                UPDATE
+                  book
+                SET
+                  price = {new_price}
+                WHERE
+                  price = {old_price}
+                """
+                execute_query(connection, update_book_price)
+            elif change == 6:
+                old_pub = input("What was the old publisher of the book?")
+                new_pub = input("What is the new publisher of the book?")
+                update_book_publisher = f"""
+                UPDATE
+                  book
+                SET
+                  publisher = {new_pub}
+                WHERE
+                  publisher = {old_pub}
+                """
+                execute_query(connection, update_book_publisher)
+        elif request2 == 3:
+            select_book = "SELECT * from book"
+            books = execute_read_query(connection, select_book)
 
-print("\nLet's see what's in the people table:")
-
-# Create a query to return data from the users table
-select_people = "SELECT * from person"
-people = execute_read_query(connection, select_people)
-
-for person in people:
-    print(person)
-
-
-# Turns out that Elizabeth McGovern married James Smith, need to change her name
-print("\n\nLet's change Elizabeth McGovern's last name to Smith and print all Smith's")
-update_person_name = """
-UPDATE
-  person
-SET
-  last_name = 'Smith'
-WHERE
-  last_name = 'McGovern'
-"""
-
-execute_query(connection, update_person_name)
-
-select_people = "SELECT * from person WHERE last_name == 'Smith'"
-smiths = execute_read_query(connection, select_people)
-print(smiths)
-
-
-# Let's add two more people to the database
-add_people = """
-INSERT INTO
-  person (first_name, last_name, age)
-VALUES
-  ('Johnny', 'Corona-Virus', 20),
-  ('Alex', 'A', 21);
-"""
+            for book in books:
+                print(book)
+        elif request2 == 4:
+            del_book = input("What is the name of the book you would like to delete?")
+            delete_book = f"""
+            DELETE FROM
+                book
+            WHERE
+                title = {del_book}
+            """
+            execute_query(connection,delete_book)
+        elif request2 == 5:
+            steady = 1
+    if request == 3:
+        steady = 0
