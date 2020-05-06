@@ -129,7 +129,7 @@ while steady == 1:
             INSERT INTO
               customer (first_name, last_name, street, city, state, zip)
             VALUES
-              ({first}, {last}, {street}, {city}, {state}, {zip}
+              ('{first}', '{last}', '{street}', '{city}', '{state}', '{zip}');
             """
             execute_query(connection, add_customer)
 
@@ -228,7 +228,7 @@ while steady == 1:
             INSERT INTO
               book (title, author, isbn, edition, price, publisher)
             VALUES
-              ({title}, {author}, {isbn}, {edition}, {price}, {publisher}
+              ('{title}', '{author}', '{isbn}', '{edition}', '{price}', '{publisher}');
             """
             execute_query(connection, add_book)
 
