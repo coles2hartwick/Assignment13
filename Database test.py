@@ -3,6 +3,7 @@
 
 import sqlite3
 from sqlite3 import Error
+import datetime
 
 
 # Method to create the connection to the database.
@@ -54,7 +55,7 @@ def execute_read_query(connection, query):
 # String holds the query to create a table
 create_customer_table = """
 CREATE TABLE IF NOT EXISTS customer (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
   first_name TEXT NOT NULL,
   last_name TEXT NOT NULL,
   street TEXT NOT NULL,
@@ -66,7 +67,7 @@ CREATE TABLE IF NOT EXISTS customer (
 
 create_book_table = """
 CREATE TABLE IF NOT EXISTS book (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  book_id INTEGER PRIMARY KEY AUTOINCREMENT,
   title TEXT NOT NULL,
   author TEXT NOT NULL,
   isbn INTEGER,
@@ -76,40 +77,36 @@ CREATE TABLE IF NOT EXISTS book (
 );
   """
 
-create_book = """
-INSERT INTO 
-  book (title, author, isbn, edition, price, publisher)
-VALUES
-  ('Waterland', 'Graham Swift', 0434753300, 1, 16.95, 'William Heinemann')
-"""
 
-# String holds the query to add data to the table
-create_customers = """
-INSERT INTO
-  customer (first_name, last_name, street, city, state, zip)
-VALUES
-  ('James', 'Smith', '969 North Creek Dr.', 'Hyde Park', 'MA', 02136),
-  ('Leila', 'Jones', '9570 Overlook St.', 'Cleveland', 'TN', 37312),
-  ('Brigitte', 'Griffing', '134 Pulaski St.', 'Winter Park' , 'FL', 32792),
-  ('Mike', 'Colameco', '1 Willow Drive', 'Powder Springs', 'GA', 30127),
-  ('Elizabeth', 'McGovern', '558 West Bowman St.', 'Bowling Green', 'KY', 42101);
-"""
+create_order_table = """
+CREATE TABLE IF NOT EXISTS order (
+ order_num INTEGER PRIMARY KEY AUTOINCREMENT,
+ order_date TEXT NOT NULL,
+ order_total INTEGER,
+ customer_id INTEGER FOREIGN KEY AUTOINCREMENT
+);
+  """
 
+create_orderLineItem_table = """
+CREATE TABLE IF NOT EXISTS orderLineItem (
+ order_num INTEGER FOREIGN KEY,
+ book_id INTEGER FOREIGN KEY,
+ quantity INTEGER
+):
+  """
 # Execute the four queries to create the tables of the database
 
 execute_query(connection, create_customer_table)
-execute_query(connection, create_customers)
 execute_query(connection, create_book_table)
-execute_query(connection, create_book)
-
-#--------------------------------------------------#
+# --------------------------------------------------#
 # Everything above this line was to create the SQL Database
 steady = 1
 while steady == 1:
     request = int(input("""Main Menu:
     1. Customers
-    2. Books
-    3. Exit"""))
+    2. Orders
+    3. Books
+    4. Exit"""))
     if request == 1:
         print("""Customer Menu:
         1. Add a new customer
@@ -118,6 +115,7 @@ while steady == 1:
         4. Delete a customer
         5. Return to Main Menu""")
         request2 = int(input())
+        # asks the questions to create a new customer
         if request2 == 1:
             first = input("What is their first name?")
             last = input("What is their last name?")
@@ -132,13 +130,14 @@ while steady == 1:
               ('{first}', '{last}', '{street}', '{city}', '{state}', '{zip}');
             """
             execute_query(connection, add_customer)
-
+        # asks the questions to find and modify a customer
         elif request2 == 2:
             print("What would you like to modify?")
             print("""1. First name
             2. Last name
             3. address""")
             change = int(input())
+            # modifies the first name of the customer
             if change == 1:
                 print("What was their name?")
                 oldname = input()
@@ -153,6 +152,7 @@ while steady == 1:
                   first_name = {oldname}
                 """
                 execute_query(connection, update_customer_name)
+            # modifies the last name of the customer
             elif change == 2:
                 print("What was their name?")
                 old_name = input()
@@ -167,6 +167,7 @@ while steady == 1:
                   last_name = {old_name}
                 """
                 execute_query(connection, update_customer_name)
+            # modifies the address of the customer
             elif change == 3:
                 old_street = input("What was their old street address?")
                 old_city = input("What was their old city?")
@@ -185,11 +186,13 @@ while steady == 1:
                     street = {old_street}, city = {old_city}, state = {old_state}, zip = {old_zip}
                 """
                 execute_query(connection, update_customer_address)
+        # prints list of all the customers in the table
         elif request2 == 3:
             select_customer = "SELECT * from customer"
             customers = execute_read_query(connection, select_customer)
             for customer in customers:
                 print(customer)
+        # finds and deletes a customer
         elif request2 == 4:
             del_customer = input("What is the name of the customer you would like to delete?")
             delete_customer = f"""
@@ -202,6 +205,77 @@ while steady == 1:
         elif request2 == 5:
             steady = 1
     if request == 2:
+        print("""Order Menu:
+        1. Add a new order
+        2. Modify an existing order
+        3. Print a list of all orders
+        4. Delete an order
+        5. Return to Main Menu""")
+        request2 = int(input())
+        # asks the questions to create a new order
+        if request2 == 1:
+            order_date = input("What is the date of the order?(mm/dd/yyyy)")
+            order_total = input("What is the total price of the order?")
+            add_order = f"""
+            INSERT INTO
+              order (order_date, order_total)
+            VALUES
+              ('{order_date}', '{order_total}');
+            """
+            execute_query(connection, add_order)
+        # asks the questions to find and modify and order
+        elif request2 == 2:
+            print("What would you like to modify?")
+            print("""1. Order date
+            2. Order total""")
+            change = int(input())
+            if change == 1:
+                print("What was the previous date?")
+                oldDate = input()
+                print("What is the new date?")
+                newDate = input()
+                update_order_date = f"""
+                UPDATE
+                  customer
+                SET
+                  first_name = {newDate}
+                WHERE
+                  first_name = {oldDate}
+                """
+                execute_query(connection, update_order_date)
+            elif change == 2:
+                print("What was the old price?")
+                old_price = input()
+                print("What is the new price?")
+                new_price = input()
+                update_order_price = f"""
+                UPDATE
+                  customer
+                SET
+                  last_name = {new_price}
+                WHERE
+                  last_name = {old_price}
+                """
+                execute_query(connection, update_order_price)
+        # prints a list of all orders in the table
+        elif request2 == 3:
+            select_order = "SELECT * from order"
+            orders = execute_read_query(connection, select_order)
+            for order in orders:
+                print(order)
+        # deletes an order from the table
+        elif request2 == 4:
+            del_order = input("What is the date of the order you would like to delete?")
+            delete_order = f"""
+            DELETE FROM
+                order
+            WHERE
+                order_date = {del_order}
+            """
+            execute_query(connection,delete_order)
+        elif request2 == 5:
+            steady = 1
+    if request == 3:
         print("""Book Menu:
         1. Add a new book
         2. Modify an existing book
@@ -209,14 +283,7 @@ while steady == 1:
         4. Delete a book
         5. Return to main menu""")
         request2 = int(input())
-        if request2 == 1:
-                    print("""Customer Menu:
-        1. Add a new customer
-        2. Modify an existing customer
-        3. Print a list of all customers
-        4. Delete a customer
-        5. Return to Main Menu""")
-        request2 = input
+        # asks the questions to add a new book to the table
         if request2 == 1:
             title = input("What is the Title of the book?")
             author = input("Who is the author of the book?")
@@ -231,7 +298,7 @@ while steady == 1:
               ('{title}', '{author}', '{isbn}', '{edition}', '{price}', '{publisher}');
             """
             execute_query(connection, add_book)
-
+        # asks the questions to find and modify a book in the table
         elif request2 == 2:
             print("""What would you like to modify?
             1. Title
@@ -241,6 +308,7 @@ while steady == 1:
             5. Price
             6. Publisher""")
             change = input()
+            # changes the title of the book
             if change == 1:
                 old_title = input("What was the old Title of the book?")
                 new_title = input("What is the new Title of the book?")
@@ -253,6 +321,7 @@ while steady == 1:
                   title = {old_title}
                 """
                 execute_query(connection, update_book_title)
+                # changes the author of the book
             elif change == 2:
                 old_author = input("What was the old author of the book?")
                 new_author = input("What is the new author of the book?")
@@ -265,6 +334,7 @@ while steady == 1:
                   author = {old_author}
                 """
                 execute_query(connection,update_book_author)
+                # changes the isbn of the book
             elif change == 3:
                 old_isbn = input("What was the old ISBN of the book?")
                 new_isbn = input("What is the new ISBN of the book?")
@@ -277,6 +347,7 @@ while steady == 1:
                     isbn = {old_isbn}
                 """
                 execute_query(connection, update_book_ISBN)
+                # changes the edition of the book
             elif change == 4:
                 old_edition = input("What was the old edition of the book?")
                 new_edition = input("What is the new edition of the book?")
@@ -289,6 +360,7 @@ while steady == 1:
                   edition = {old_edition}
                 """
                 execute_query(connection, update_book_edition)
+                # changes the price of the book
             elif change == 5:
                 old_price = input("What was the old price of the book?")
                 new_price = input("What is the new price of the book?")
@@ -301,6 +373,7 @@ while steady == 1:
                   price = {old_price}
                 """
                 execute_query(connection, update_book_price)
+                # changes the publisher of the book
             elif change == 6:
                 old_pub = input("What was the old publisher of the book?")
                 new_pub = input("What is the new publisher of the book?")
@@ -313,12 +386,14 @@ while steady == 1:
                   publisher = {old_pub}
                 """
                 execute_query(connection, update_book_publisher)
+                # prints list of all books in the table or in stock
         elif request2 == 3:
             select_book = "SELECT * from book"
             books = execute_read_query(connection, select_book)
 
             for book in books:
                 print(book)
+                # deletes book from table
         elif request2 == 4:
             del_book = input("What is the name of the book you would like to delete?")
             delete_book = f"""
@@ -330,5 +405,5 @@ while steady == 1:
             execute_query(connection,delete_book)
         elif request2 == 5:
             steady = 1
-    if request == 3:
+    if request == 4:
         steady = 0
